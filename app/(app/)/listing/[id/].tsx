@@ -446,7 +446,7 @@ export default function ListingDetailScreen() {
           </ScrollView>
         </SafeAreaView>
       </Modal>
-    );
+    </SafeAreaView>
   );
 }
 

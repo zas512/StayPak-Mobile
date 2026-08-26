@@ -260,7 +260,7 @@ export default function TripsScreen() {
         )}
         <View style={styles.bottomSpacer} />
       </ScrollView>
-    );
+    </SafeAreaView>
   );
 }
 

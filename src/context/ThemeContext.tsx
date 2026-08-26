@@ -90,7 +90,7 @@ export const useTheme = (): ThemeContextType => {
 };
 
 // Helper hook for theme-aware styles
-export const useThemeStyles = <T>(styles: { light: T; dark: T }): T => {
+export const useThemeStyles = <T,>(styles: { light: T; dark: T }): T => {
   const { theme } = useTheme();
   return theme === 'dark' ? styles.dark : styles.light;
 };

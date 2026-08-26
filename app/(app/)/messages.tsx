@@ -169,7 +169,7 @@ export default function MessagesScreen() {
         )}
         <View style={styles.bottomSpacer} />
       </ScrollView>
-    );
+    </SafeAreaView>
   );
 }
 
