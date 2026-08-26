@@ -1,43 +1,100 @@
 {
   "name": "staypak-mobile",
-  "main": "expo-router/entry",
   "version": "1.0.0",
-  "dependencies": {
-    "@expo/ui": "~56.0.18",
-    "expo": "~56.0.12",
-    "expo-constants": "~56.0.18",
-    "expo-device": "~56.0.4",
-    "expo-font": "~56.0.7",
-    "expo-glass-effect": "~56.0.4",
-    "expo-image": "~56.0.11",
-    "expo-linking": "~56.0.14",
-    "expo-router": "~56.2.11",
-    "expo-splash-screen": "~56.0.10",
-    "expo-status-bar": "~56.0.4",
-    "expo-symbols": "~56.0.6",
-    "expo-system-ui": "~56.0.5",
-    "expo-web-browser": "~56.0.5",
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
-    "react-native": "0.85.3",
-    "react-native-gesture-handler": "~2.31.1",
-    "react-native-reanimated": "4.3.1",
-    "react-native-safe-area-context": "~5.7.0",
-    "react-native-screens": "4.25.2",
-    "react-native-web": "~0.21.0",
-    "react-native-worklets": "0.8.3"
-  },
-  "devDependencies": {
-    "@types/react": "~19.2.2",
-    "typescript": "~6.0.3"
-  },
+  "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
-    "reset-project": "node ./scripts/reset-project.js",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "typecheck": "tsc --noEmit"
   },
-  "private": true
+  "dependencies": {
+    "expo": "~51.0.0",
+    "expo-router": "~3.5.0",
+    "expo-linking": "~6.3.0",
+    "expo-constants": "~16.0.0",
+    "expo-secure-store": "~13.0.0",
+    "expo-image": "~1.12.0",
+    "expo-av": "~14.0.0",
+    "expo-location": "~17.0.0",
+    "expo-notifications": "~0.28.0",
+    "expo-haptics": "~13.0.0",
+    "react": "18.2.0",
+    "react-native": "0.74.5",
+    "react-native-gesture-handler": "~2.16.0",
+    "react-native-reanimated": "~3.10.0",
+    "react-native-safe-area-context": "4.10.5",
+    "react-native-screens": "3.31.1",
+    "react-native-svg": "15.2.0",
+    "react-native-webview": "13.8.6",
+    "@react-native-async-storage/async-storage": "1.23.1",
+    "@react-native-community/netinfo": "11.3.1",
+    "@expo/vector-icons": "^14.0.0",
+    "expo-linear-gradient": "~13.0.0",
+    "expo-blur": "~13.0.0",
+    "zustand": "^4.5.0",
+    "axios": "^1.7.0",
+    "date-fns": "^3.6.0",
+    "react-hook-form": "^7.51.0",
+    "@hookform/resolvers": "^3.3.0",
+    "zod": "^3.23.0",
+    "nativewind": "^4.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.0",
+    "@types/react": "~18.2.0",
+    "@types/react-native": "~0.73.0",
+    "typescript": "~5.4.0",
+    "tailwindcss": "^3.4.0",
+    "nativewind": "^4.0.0"
+  },
+  "private": true,
+  "expo": {
+    "name": "StayPak",
+    "slug": "staypak-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#059669"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.staypak.mobile"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#059669"
+      },
+      "package": "com.staypak.mobile"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-notifications",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow StayPak to access your location for finding nearby stays"
+        }
+      ],
+      "nativewind"
+    ],
+    "scheme": "staypak",
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
 }
