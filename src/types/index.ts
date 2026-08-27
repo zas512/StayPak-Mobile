@@ -73,16 +73,18 @@ export interface Booking {
   checkOut: string;
   nights: number;
   guestsCount: number;
-  baseAmount: number;
+  basePrice: number;
   cleaningFee: number;
   serviceFee: number;
   taxes: number;
+  subtotal: number;
   totalAmount: number;
   currency: string;
   status: BookingStatus;
   paymentStatus: PaymentStatus;
   paymentGateway?: PaymentGateway;
   paymentReference?: string;
+  guestNote?: string;
   specialRequests?: string;
   cancelledAt?: string;
   cancellationReason?: string;
@@ -162,7 +164,14 @@ export type Amenity =
   | 'high_chair'
   | 'pets_allowed'
   | 'smoking_allowed'
-  | 'events_allowed';
+  | 'events_allowed'
+  | 'hot_tub'
+  | 'breakfast'
+  | 'essentials'
+  | 'first_aid_kit'
+  | 'fire_extinguisher'
+  | 'smoke_alarm'
+  | 'carbon_monoxide_alarm';
 
 export type CancellationPolicy = 'flexible' | 'moderate' | 'strict' | 'super_strict';
 

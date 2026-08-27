@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, StyleSheet, SafeAreaView, TouchableOpacity, Image, Alert, RefreshControl } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, SafeAreaView, TouchableOpacity, Image, Alert, RefreshControl, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/context/AuthContext';
@@ -37,13 +37,13 @@ export default function HostDashboardScreen() {
         usersApi.getHostStats(),
       ]);
 
-      if (listingsRes.data.success && listingsRes.data.data) {
+      if (listingsRes.data.data) {
         setListings(listingsRes.data.data);
       }
-      if (bookingsRes.data.success && bookingsRes.data.data) {
+      if (bookingsRes.data.data) {
         setBookings(bookingsRes.data.data);
       }
-      if (statsRes.data.success && statsRes.data.data) {
+      if (statsRes.data.data) {
         setStats(statsRes.data.data);
       }
     } catch (error: any) {
@@ -209,19 +209,19 @@ export default function HostDashboardScreen() {
             <FlatList
               data={listings.slice(0, 4)}
               keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
+              renderItem={({ item }: { item: Listing }) => (
                 <TouchableOpacity onPress={() => router.push(`/host/listings/${item.id}`)} style={styles.listingCard}>
                   <Image source={{ uri: item.photos?.[0]?.cdnUrl || 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400' }} style={styles.listingCardImage} resizeMode="cover" />
                   <View style={styles.listingCardOverlay}>
                     <View style={styles.listingCardStatus}>
-                      <Badge variant={getListingStatusBadge(item.isActive)} size="sm">
-                        {item.isActive ? 'Active' : 'Inactive'}
+                      <Badge variant={getListingStatusBadge(item.status === 'active')} size="sm">
+                        {item.status === 'active' ? 'Active' : 'Inactive'}
                       </Badge>
                     </View>
                     <View style={styles.listingCardInfo}>
                       <Text style={styles.listingCardTitle}>{item.title}</Text>
                       <Text style={styles.listingCardLocation}>{item.city}, {item.area}</Text>
-                      <Text style={styles.listingCardPrice}>{formatPrice(item.pricePerNight)}/night</Text>
+                      <Text style={styles.listingCardPrice}>{formatPrice(item.basePrice)}/night</Text>
                     </View>
                   </View>
                 </TouchableOpacity>
@@ -251,7 +251,7 @@ export default function HostDashboardScreen() {
             <FlatList
               data={bookings.slice(0, 5)}
               keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
+              renderItem={({ item }: { item: Booking }) => (
                 <TouchableOpacity onPress={() => router.push(`/booking/${item.id}`)} style={styles.bookingCard}>
                   <View style={styles.bookingRow}>
                     <Image source={{ uri: item.listing?.photos?.[0]?.cdnUrl || 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400' }} style={styles.bookingImage} resizeMode="cover" />

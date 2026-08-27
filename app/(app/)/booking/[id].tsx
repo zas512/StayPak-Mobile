@@ -9,7 +9,7 @@ import { Card, CardSection } from '@/components/Card';
 import { Button } from '@/components/Button';
 import { Badge } from '@/components/Badge';
 import { Avatar } from '@/components/Avatar';
-import { Booking, BookingStatus, PaymentGateway, PaymentStatus } from '@/types';
+import { Booking, BookingStatus, PaymentGateway, PaymentStatus, ApiResponse } from '@/types';
 
 export default function BookingDetailScreen() {
   const { theme } = useTheme();
@@ -28,10 +28,10 @@ export default function BookingDetailScreen() {
     try {
       setIsLoading(true);
       const response = await bookingsApi.getById(bookingId as string);
-      if (response.data.success && response.data.data) {
-        setBooking(response.data.data);
+      if (response.data) {
+        setBooking(response.data);
       } else {
-        setError(response.data.message || 'Failed to load booking');
+        setError('Failed to load booking');
       }
     } catch (error: any) {
       console.error('Failed to fetch booking:', error);
@@ -55,8 +55,8 @@ export default function BookingDetailScreen() {
     if (!booking || isProcessing) return;
     setIsProcessing(true);
     try {
-      const response = await bookingsApi.initiatePayment(bookingId as string, { gateway: selectedGateway });
-      if (response.data.success && response.data.data?.paymentUrl) {
+      const response = await bookingsApi.initiatePayment(bookingId as string, selectedGateway);
+      if (response.data?.data?.paymentUrl) {
         await Linking.openURL(response.data.data.paymentUrl);
       } else {
         Alert.alert('Payment Error', 'Unable to initiate payment');
@@ -81,8 +81,8 @@ export default function BookingDetailScreen() {
           onPress: async () => {
             try {
               const response = await bookingsApi.cancel(bookingId as string);
-              if (response.data.success) {
-                setBooking(response.data.data);
+              if (response.data) {
+                setBooking(response.data);
                 Alert.alert('Cancelled', 'Your booking has been cancelled');
               }
             } catch (error: any) {
@@ -278,7 +278,7 @@ export default function BookingDetailScreen() {
                 </View>
               </View>
             </View>
-            {booking.guestNote && (
+            {booking.guestNote && booking.guestNote.trim() && (
               <>
                 <View style={styles.divider} />
                 <Text style={[styles.guestNote, { color: theme === 'dark' ? '#9ca3af' : '#6b7280' }]}>"{booking.guestNote}"</Text>
@@ -294,7 +294,7 @@ export default function BookingDetailScreen() {
               <Text style={[styles.priceLabel, { color: theme === 'dark' ? '#9ca3af' : '#6b7280' }]}>
                 {formatPrice(booking.basePrice)} × {Math.ceil((new Date(booking.checkOut).getTime() - new Date(booking.checkIn).getTime()) / 86400000)} nights
               </Text>
-              <Text style={[styles.priceValue, { color: theme === 'dark' ? '#f1f5f9' : '#111827' }]}>{formatPrice(booking.subtotal)}</Text>
+              <Text style={[styles.priceValue, { color: theme === 'dark' ? '#f1f5f9' : '#111827' }]}>{formatPrice(booking.basePrice * Math.ceil((new Date(booking.checkOut).getTime() - new Date(booking.checkIn).getTime()) / 86400000))}</Text>
             </View>
             {booking.cleaningFee > 0 && (
               <View style={styles.priceRow}>

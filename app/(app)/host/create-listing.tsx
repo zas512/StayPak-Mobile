@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, StyleSheet, SafeAreaView, TouchableOpacity, Alert, Platform, TextInput, Picker } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, SafeAreaView, TouchableOpacity, Alert, Platform, Image } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/context/AuthContext';
@@ -8,7 +9,7 @@ import { listingsApi } from '@/services/api';
 import { Card, CardSection } from '@/components/Card';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
-import { Listing, PropertyType, ListingAmenity } from '@/types';
+import { Listing, PropertyType, Amenity } from '@/types';
 import * as ImagePicker from 'expo-image-picker';
 
 export default function CreateListingScreen() {
@@ -30,31 +31,31 @@ export default function CreateListingScreen() {
     maxGuests: '1',
     bedrooms: '1',
     bathrooms: '1',
-    amenities: [] as ListingAmenity[],
+    amenities: [] as Amenity[],
   });
   const [photos, setPhotos] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const allAmenities: { key: ListingAmenity; label: string; icon: string }[] = [
+  const allAmenities: { key: Amenity; label: string; icon: string }[] = [
     { key: 'wifi', label: 'WiFi', icon: 'wifi-outline' },
-    { key: 'airConditioning', label: 'Air Conditioning', icon: 'snow-outline' },
+    { key: 'air_conditioning', label: 'Air Conditioning', icon: 'snow-outline' },
     { key: 'heating', label: 'Heating', icon: 'flame-outline' },
     { key: 'kitchen', label: 'Kitchen', icon: 'restaurant-outline' },
     { key: 'washer', label: 'Washer', icon: 'shirt-outline' },
     { key: 'dryer', label: 'Dryer', icon: 'shirt-outline' },
     { key: 'parking', label: 'Free Parking', icon: 'car-outline' },
     { key: 'pool', label: 'Pool', icon: 'water-outline' },
-    { key: 'hotTub', label: 'Hot Tub', icon: 'water-outline' },
+    { key: 'hot_tub', label: 'Hot Tub', icon: 'water-outline' },
     { key: 'gym', label: 'Gym', icon: 'dumbbell-outline' },
     { key: 'tv', label: 'TV', icon: 'tv-outline' },
     { key: 'workspace', label: 'Workspace', icon: 'laptop-outline' },
     { key: 'breakfast', label: 'Breakfast', icon: 'cafe-outline' },
     { key: 'essentials', label: 'Essentials', icon: 'checkmark-circle-outline' },
-    { key: 'firstAidKit', label: 'First Aid Kit', icon: 'medkit-outline' },
-    { key: 'fireExtinguisher', label: 'Fire Extinguisher', icon: 'flame-outline' },
-    { key: 'smokeAlarm', label: 'Smoke Alarm', icon: 'alert-circle-outline' },
-    { key: 'carbonMonoxideAlarm', label: 'CO Alarm', icon: 'alert-circle-outline' },
+    { key: 'first_aid_kit', label: 'First Aid Kit', icon: 'medkit-outline' },
+    { key: 'fire_extinguisher', label: 'Fire Extinguisher', icon: 'flame-outline' },
+    { key: 'smoke_alarm', label: 'Smoke Alarm', icon: 'alert-circle-outline' },
+    { key: 'carbon_monoxide_alarm', label: 'CO Alarm', icon: 'alert-circle-outline' },
   ];
 
   const propertyTypes: { value: PropertyType; label: string }[] = [
@@ -87,17 +88,32 @@ export default function CreateListingScreen() {
     if (!validateForm()) return;
     setIsSubmitting(true);
     try {
-      const data = {
-        ...formData,
-        pricePerNight: parseFloat(formData.pricePerNight),
-        cleaningFee: parseFloat(formData.cleaningFee) || 0,
-        maxGuests: parseInt(formData.maxGuests),
-        bedrooms: parseInt(formData.bedrooms),
-        bathrooms: parseInt(formData.bathrooms),
-        latitude: formData.latitude ? parseFloat(formData.latitude) : undefined,
-        longitude: formData.longitude ? parseFloat(formData.longitude) : undefined,
-      };
-      const response = await listingsApi.create(data);
+      const formDataToSend = new FormData();
+      formDataToSend.append('title', formData.title);
+      formDataToSend.append('description', formData.description);
+      formDataToSend.append('propertyType', formData.propertyType);
+      formDataToSend.append('address', formData.address);
+      formDataToSend.append('city', formData.city);
+      formDataToSend.append('area', formData.area);
+      if (formData.latitude) formDataToSend.append('latitude', formData.latitude);
+      if (formData.longitude) formDataToSend.append('longitude', formData.longitude);
+      formDataToSend.append('basePrice', formData.pricePerNight);
+      formDataToSend.append('cleaningFee', formData.cleaningFee || '0');
+      formDataToSend.append('maxGuests', formData.maxGuests);
+      formDataToSend.append('bedrooms', formData.bedrooms);
+      formDataToSend.append('bathrooms', formData.bathrooms);
+      formDataToSend.append('amenities', JSON.stringify(formData.amenities));
+
+      // Add photos
+      photos.forEach((photo, index) => {
+        formDataToSend.append('photos', {
+          uri: photo,
+          type: 'image/jpeg',
+          name: `photo_${index}.jpg`,
+        } as any);
+      });
+
+      const response = await listingsApi.create(formDataToSend);
       if (response.data.success) {
         Alert.alert('Success', 'Listing created successfully!');
         router.back();
@@ -130,7 +146,7 @@ export default function CreateListingScreen() {
     setPhotos(prev => prev.filter((_, i) => i !== index));
   };
 
-  const toggleAmenity = (amenity: ListingAmenity) => {
+  const toggleAmenity = (amenity: Amenity) => {
     setFormData(prev => ({
       ...prev,
       amenities: prev.amenities.includes(amenity)
@@ -168,7 +184,8 @@ export default function CreateListingScreen() {
       >
         {/* Photos */}
         <Card style={styles.formCard}>
-          <CardSection title="Photos" style={styles.formSectionTitle}>
+          <CardSection style={styles.formSectionTitle}>
+            <Text style={styles.sectionTitleText}>Photos</Text>
             <View style={styles.photoGrid}>
               {photos.map((photo, index) => (
                 <View key={index} style={styles.photoItem}>
@@ -192,20 +209,19 @@ export default function CreateListingScreen() {
 
         {/* Basic Info */}
         <Card style={styles.formCard}>
-          <CardSection title="Basic Information" style={styles.formSectionTitle}>
+          <CardSection style={styles.formSectionTitle}>
+            <Text style={styles.sectionTitleText}>Basic Information</Text>
             <Input
               label="Listing Title"
-              placeholder="e.g., Beautiful 2BR Apartment in Gulberg"
               value={formData.title}
-              onChangeText={(text) => setFormData({ ...formData, title: text })}
+              onChangeText={(text: string) => setFormData({ ...formData, title: text })}
               error={errors.title}
               autoCapitalize="words"
             />
             <Input
               label="Description"
-              placeholder="Describe your property, nearby attractions, and what makes it special..."
               value={formData.description}
-              onChangeText={(text) => setFormData({ ...formData, description: text })}
+              onChangeText={(text: string) => setFormData({ ...formData, description: text })}
               error={errors.description}
               multiline
               numberOfLines={5}
@@ -217,48 +233,45 @@ export default function CreateListingScreen() {
               editable={false}
               onPress={() => {}}
               rightElement={<Ionicons name="chevron-down-outline" size={20} color={theme === 'dark' ? '#9ca3af' : '#6b7280'} />}
+            />
+            <Picker
+              selectedValue={formData.propertyType}
+              onValueChange={(value: string) => setFormData({ ...formData, propertyType: value as PropertyType })}
+              mode="dropdown"
+              style={styles.picker}
+              itemStyle={styles.pickerItem}
             >
-              <Picker
-                selectedValue={formData.propertyType}
-                onValueChange={(value) => setFormData({ ...formData, propertyType: value as PropertyType })}
-                mode="dropdown"
-                style={styles.picker}
-                itemStyle={styles.pickerItem}
-              >
-                {propertyTypes.map((type) => (
-                  <Picker.Item key={type.value} label={type.label} value={type.value} />
-                ))}
-              </Picker>
-            </Input>
+              {propertyTypes.map((type) => (
+                <Picker.Item key={type.value} label={type.label} value={type.value} />
+              ))}
+            </Picker>
           </CardSection>
         </Card>
 
         {/* Location */}
         <Card style={styles.formCard}>
-          <CardSection title="Location" style={styles.formSectionTitle}>
+          <CardSection style={styles.formSectionTitle}>
+            <Text style={styles.sectionTitleText}>Location</Text>
             <Input
               label="Address"
-              placeholder="Street address, building name"
               value={formData.address}
-              onChangeText={(text) => setFormData({ ...formData, address: text })}
+              onChangeText={(text: string) => setFormData({ ...formData, address: text })}
               error={errors.address}
               autoCapitalize="words"
             />
             <View style={styles.locationRow}>
               <Input
                 label="City"
-                placeholder="e.g., Lahore"
                 value={formData.city}
-                onChangeText={(text) => setFormData({ ...formData, city: text })}
+                onChangeText={(text: string) => setFormData({ ...formData, city: text })}
                 error={errors.city}
                 autoCapitalize="words"
                 style={styles.halfInput}
               />
               <Input
                 label="Area/Neighborhood"
-                placeholder="e.g., Gulberg III"
                 value={formData.area}
-                onChangeText={(text) => setFormData({ ...formData, area: text })}
+                onChangeText={(text: string) => setFormData({ ...formData, area: text })}
                 error={errors.area}
                 autoCapitalize="words"
                 style={styles.halfInput}
@@ -267,17 +280,15 @@ export default function CreateListingScreen() {
             <View style={styles.coordsRow}>
               <Input
                 label="Latitude (optional)"
-                placeholder="31.5204"
                 value={formData.latitude}
-                onChangeText={(text) => setFormData({ ...formData, latitude: text })}
+                onChangeText={(text: string) => setFormData({ ...formData, latitude: text })}
                 keyboardType="decimal-pad"
                 style={styles.halfInput}
               />
               <Input
                 label="Longitude (optional)"
-                placeholder="74.3587"
                 value={formData.longitude}
-                onChangeText={(text) => setFormData({ ...formData, longitude: text })}
+                onChangeText={(text: string) => setFormData({ ...formData, longitude: text })}
                 keyboardType="decimal-pad"
                 style={styles.halfInput}
               />
@@ -287,22 +298,21 @@ export default function CreateListingScreen() {
 
         {/* Pricing */}
         <Card style={styles.formCard}>
-          <CardSection title="Pricing" style={styles.formSectionTitle}>
+          <CardSection style={styles.formSectionTitle}>
+            <Text style={styles.sectionTitleText}>Pricing</Text>
             <View style={styles.pricingRow}>
               <Input
                 label="Price per Night (PKR)"
-                placeholder="5000"
                 value={formData.pricePerNight}
-                onChangeText={(text) => setFormData({ ...formData, pricePerNight: text })}
+                onChangeText={(text: string) => setFormData({ ...formData, pricePerNight: text })}
                 error={errors.pricePerNight}
                 keyboardType="numeric"
                 style={styles.halfInput}
               />
               <Input
                 label="Cleaning Fee (PKR, optional)"
-                placeholder="0"
                 value={formData.cleaningFee}
-                onChangeText={(text) => setFormData({ ...formData, cleaningFee: text })}
+                onChangeText={(text: string) => setFormData({ ...formData, cleaningFee: text })}
                 keyboardType="numeric"
                 style={styles.halfInput}
               />
@@ -312,31 +322,29 @@ export default function CreateListingScreen() {
 
         {/* Capacity */}
         <Card style={styles.formCard}>
-          <CardSection title="Capacity" style={styles.formSectionTitle}>
+          <CardSection style={styles.formSectionTitle}>
+            <Text style={styles.sectionTitleText}>Capacity</Text>
             <View style={styles.capacityRow}>
               <Input
                 label="Max Guests"
-                placeholder="4"
                 value={formData.maxGuests}
-                onChangeText={(text) => setFormData({ ...formData, maxGuests: text })}
+                onChangeText={(text: string) => setFormData({ ...formData, maxGuests: text })}
                 error={errors.maxGuests}
                 keyboardType="numeric"
                 style={styles.thirdInput}
               />
               <Input
                 label="Bedrooms"
-                placeholder="2"
                 value={formData.bedrooms}
-                onChangeText={(text) => setFormData({ ...formData, bedrooms: text })}
+                onChangeText={(text: string) => setFormData({ ...formData, bedrooms: text })}
                 error={errors.bedrooms}
                 keyboardType="numeric"
                 style={styles.thirdInput}
               />
               <Input
                 label="Bathrooms"
-                placeholder="1"
                 value={formData.bathrooms}
-                onChangeText={(text) => setFormData({ ...formData, bathrooms: text })}
+                onChangeText={(text: string) => setFormData({ ...formData, bathrooms: text })}
                 error={errors.bathrooms}
                 keyboardType="numeric"
                 style={styles.thirdInput}
@@ -347,7 +355,8 @@ export default function CreateListingScreen() {
 
         {/* Amenities */}
         <Card style={styles.formCard}>
-          <CardSection title="Amenities" style={styles.formSectionTitle}>
+          <CardSection style={styles.formSectionTitle}>
+            <Text style={styles.sectionTitleText}>Amenities</Text>
             <View style={styles.amenitiesGrid}>
               {allAmenities.map((amenity) => (
                 <TouchableOpacity
@@ -386,7 +395,8 @@ const styles = StyleSheet.create({
   headerTitle: { flex: 1, fontSize: 18, fontWeight: '600', fontFamily: 'System', textAlign: 'center' },
   headerSpacer: { width: 44 },
   formCard: { marginHorizontal: 16, marginTop: 16, padding: 0 },
-  formSectionTitle: { fontSize: 16, fontWeight: '600', fontFamily: 'System', paddingHorizontal: 16, paddingTop: 16 },
+  formSectionTitle: { paddingHorizontal: 16, paddingTop: 16 },
+  sectionTitleText: { fontSize: 16, fontWeight: '600', fontFamily: 'System' },
   photoGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingHorizontal: 16, paddingBottom: 8 },
   photoItem: { position: 'relative', width: 80, height: 80, borderRadius: 12, overflow: 'hidden' },
   photoImage: { width: '100%', height: '100%' },

@@ -162,6 +162,16 @@ export default function ListingDetailScreen() {
     smoking_allowed: 'cloud-outline', events_allowed: 'people-outline',
   };
 
+  const getAmenityItemStyle = () => ({
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 8,
+    backgroundColor: theme === 'dark' ? '#0f172a' : '#f3f4f6',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 10,
+  });
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme === 'dark' ? '#03120c' : '#fafafa' }]}>
       <ScrollView
@@ -277,7 +287,7 @@ export default function ListingDetailScreen() {
               <Text style={[styles.sectionTitle, { color: theme === 'dark' ? '#f1f5f9' : '#111827' }]}>What this place offers</Text>
               <View style={styles.amenitiesGrid}>
                 {listing.amenities.map((amenity) => (
-                  <TouchableOpacity key={amenity} style={styles.amenityItem}>
+                  <TouchableOpacity key={amenity} style={getAmenityItemStyle()}>
                     <Ionicons name={amenityIcons[amenity] || 'checkmark-outline'} size={22} color={theme === 'dark' ? '#34d399' : '#059669'} />
                     <Text style={[styles.amenityLabel, { color: theme === 'dark' ? '#e5e7eb' : '#374151' }]}>{amenity.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</Text>
                   </TouchableOpacity>
@@ -314,7 +324,7 @@ export default function ListingDetailScreen() {
                   <Text style={[styles.hostName, { color: theme === 'dark' ? '#f1f5f9' : '#111827' }]}>Hosted by {listing.host.fullName}</Text>
                   <View style={styles.hostMeta}>
                     {listing.host.isCnicVerified && (
-                      <Badge variant="success" size="xs" dot>Verified</Badge>
+                      <Badge variant="success" size="sm" dot>Verified</Badge>
                     )}
                     <Text style={[styles.hostJoinDate, { color: theme === 'dark' ? '#9ca3af' : '#6b7280' }]}>
                       Joined {new Date(listing.host.createdAt).getFullYear()}
@@ -491,7 +501,7 @@ const styles = StyleSheet.create({
   sectionTitle: { fontSize: 18, fontWeight: '600', fontFamily: 'System' },
   description: { fontSize: 15, lineHeight: 24, fontFamily: 'System' },
   amenitiesGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
-  amenityItem: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: theme => theme === 'dark' ? '#0f172a' : '#f3f4f6', paddingHorizontal: 12, paddingVertical: 10, borderRadius: 10 },
+  amenityItem: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 12, paddingVertical: 10, borderRadius: 10 },
   amenityLabel: { fontSize: 13, fontWeight: '500', fontFamily: 'System' },
   hostCard: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   hostInfo: { flex: 1 },

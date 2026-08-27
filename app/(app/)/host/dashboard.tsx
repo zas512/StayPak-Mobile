@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, StyleSheet, SafeAreaView, TouchableOpacity, Image, Alert, RefreshControl } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, SafeAreaView, TouchableOpacity, Image, Alert, RefreshControl, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/context/AuthContext';
@@ -37,13 +37,13 @@ export default function HostDashboardScreen() {
         usersApi.getHostStats(),
       ]);
 
-      if (listingsRes.data.success && listingsRes.data.data) {
-        setListings(listingsRes.data.data);
+      if (listingsRes.data) {
+        setListings(listingsRes.data);
       }
-      if (bookingsRes.data.success && bookingsRes.data.data) {
-        setBookings(bookingsRes.data.data);
+      if (bookingsRes.data) {
+        setBookings(bookingsRes.data);
       }
-      if (statsRes.data.success && statsRes.data.data) {
+      if (statsRes.data?.data) {
         setStats(statsRes.data.data);
       }
     } catch (error: any) {
@@ -339,5 +339,3 @@ const styles = StyleSheet.create({
   bottomSpacer: { height: 20 },
 });
 
-// Need to import usersApi
-import { usersApi } from '@/services/api';

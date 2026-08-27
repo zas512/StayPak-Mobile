@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, StyleSheet, SafeAreaView, TouchableOpacity, RefreshControl, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter, useSearchParams } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTheme } from '@/context/ThemeContext';
 import { listingsApi } from '@/services/api';
 import { ListingCard } from '@/components/ListingCard';
@@ -38,7 +38,7 @@ const AMENITIES: { value: Amenity; label: string; icon: string }[] = [
 export default function SearchScreen() {
   const { theme } = useTheme();
   const router = useRouter();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const searchParams = useLocalSearchParams();
 
   const [listings, setListings] = useState<Listing[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -49,13 +49,13 @@ export default function SearchScreen() {
   const [showFilters, setShowFilters] = useState(false);
 
   // Filters
-  const [query, setQuery] = useState(searchParams.get('query') || '');
-  const [city, setCity] = useState(searchParams.get('city') || '');
-  const [guests, setGuests] = useState(parseInt(searchParams.get('guests') || '1'));
-  const [checkIn, setCheckIn] = useState(searchParams.get('checkIn') || '');
-  const [checkOut, setCheckOut] = useState(searchParams.get('checkOut') || '');
-  const [minPrice, setMinPrice] = useState(searchParams.get('minPrice') || '');
-  const [maxPrice, setMaxPrice] = useState(searchParams.get('maxPrice') || '');
+  const [query, setQuery] = useState(searchParams.query as string || '');
+  const [city, setCity] = useState(searchParams.city as string || '');
+  const [guests, setGuests] = useState(parseInt(searchParams.guests as string || '1'));
+  const [checkIn, setCheckIn] = useState(searchParams.checkIn as string || '');
+  const [checkOut, setCheckOut] = useState(searchParams.checkOut as string || '');
+  const [minPrice, setMinPrice] = useState(searchParams.minPrice as string || '');
+  const [maxPrice, setMaxPrice] = useState(searchParams.maxPrice as string || '');
   const [selectedTypes, setSelectedTypes] = useState<PropertyType[]>([]);
   const [selectedAmenities, setSelectedAmenities] = useState<Amenity[]>([]);
   const [instantBook, setInstantBook] = useState(false);
@@ -214,56 +214,58 @@ export default function SearchScreen() {
       </View>
 
       {/* Results */}
-      <ScrollView
-        contentContainerStyle={styles.results}
-        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} colors={[theme === 'dark' ? '#34d399' : '#059669']} />}
-        onEndReached={loadMore}
-        onEndReachedThreshold={0.3}
-        showsVerticalScrollIndicator={false}
-      >
-        <Text style={[styles.resultsHeader, { color: theme === 'dark' ? '#9ca3af' : '#6b7280' }]}>
-          {totalResults} stays found
-        </Text>
-
-        {isLoading && listings.length === 0 ? (
-          <View style={styles.loadingContainer}>
-            {Array.from({ length: 4 }).map((_, i) => (
-              <View key={i} style={styles.skeletonCard}>
-                <View style={styles.skeletonImage} />
-                <View style={styles.skeletonContent}>
-                  <View style={styles.skeletonLine} />
-                  <View style={styles.skeletonLineShort} />
-                </View>
-              </View>
-            ))}
-          </View>
-        ) : listings.length === 0 ? (
-          <View style={styles.emptyState}>
-            <Ionicons name="search-outline" size={48} color={theme === 'dark' ? '#475569' : '#d1d5db'} />
-            <Text style={[styles.emptyText, { color: theme === 'dark' ? '#9ca3af' : '#6b7280' }]}>No stays found</Text>
-            <Text style={[styles.emptySubtext, { color: theme === 'dark' ? '#64748b' : '#9ca3af' }]}>
-              Try adjusting your search or filters
-            </Text>
-            <Button title="Clear filters" variant="outline" onPress={resetFilters} style={styles.clearButton} />
-          </View>
-        ) : (
+      <FlatList
+        data={listings.length === 0 ? [] : listings}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <ListingCard
+            listing={item}
+            onPress={() => router.push(`/listing/${item.id}`)}
+          />
+        )}
+        ListHeaderComponent={
           <>
-            {listings.map((listing) => (
-              <ListingCard
-                key={listing.id}
-                listing={listing}
-                onPress={() => router.push(`/listing/${listing.id}`)}
-              />
-            ))}
+            <Text style={[styles.resultsHeader, { color: theme === 'dark' ? '#9ca3af' : '#6b7280' }]}>
+              {totalResults} stays found
+            </Text>
+            {isLoading && listings.length === 0 && (
+              <View style={styles.loadingContainer}>
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <View key={i} style={styles.skeletonCard}>
+                    <View style={styles.skeletonImage} />
+                    <View style={styles.skeletonContent}>
+                      <View style={styles.skeletonLine} />
+                      <View style={styles.skeletonLineShort} />
+                    </View>
+                  </View>
+                ))}
+              </View>
+            )}
+            {listings.length === 0 && !isLoading && (
+              <View style={styles.emptyState}>
+                <Ionicons name="search-outline" size={48} color={theme === 'dark' ? '#475569' : '#d1d5db'} />
+                <Text style={[styles.emptyText, { color: theme === 'dark' ? '#9ca3af' : '#6b7280' }]}>No stays found</Text>
+                <Text style={[styles.emptySubtext, { color: theme === 'dark' ? '#64748b' : '#9ca3af' }]}>
+                  Try adjusting your search or filters
+                </Text>
+                <Button title="Clear filters" variant="outline" onPress={resetFilters} style={styles.clearButton} />
+              </View>
+            )}
+          </>
+        }
+        ListFooterComponent={
+          <>
             {hasMore && !isLoading && (
               <TouchableOpacity onPress={loadMore} style={styles.loadMoreButton}>
                 <Text style={[styles.loadMoreText, { color: theme === 'dark' ? '#34d399' : '#059669' }]}>Load more</Text>
               </TouchableOpacity>
             )}
+            <View style={styles.bottomSpacer} />
           </>
-        )}
-        <View style={styles.bottomSpacer} />
-      </ScrollView>
+        }
+        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} colors={[theme === 'dark' ? '#34d399' : '#059669']} />}
+        showsVerticalScrollIndicator={false}
+      />
 
       {/* Filter Modal */}
       <Modal
@@ -292,7 +294,7 @@ export default function SearchScreen() {
                   placeholder="Min"
                   value={minPrice}
                   onChangeText={setMinPrice}
-                  keyboardType="number-pad"
+                  keyboardType="numeric"
                   inputStyle={styles.priceInput}
                 />
                 <Text style={[styles.priceDash, { color: theme === 'dark' ? '#9ca3af' : '#6b7280' }]}>-</Text>
@@ -300,7 +302,7 @@ export default function SearchScreen() {
                   placeholder="Max"
                   value={maxPrice}
                   onChangeText={setMaxPrice}
-                  keyboardType="number-pad"
+                  keyboardType="numeric"
                   inputStyle={styles.priceInput}
                 />
               </View>

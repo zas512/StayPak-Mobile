@@ -86,9 +86,10 @@ interface CardSectionProps {
   children: React.ReactNode;
   style?: any;
   divider?: boolean;
+  title?: string;
 }
 
-export const CardSection: React.FC<CardSectionProps> = ({ children, style, divider = false }) => {
+export const CardSection: React.FC<CardSectionProps> = ({ children, style, divider = false, title }) => {
   const { theme } = useTheme();
 
   return (
@@ -102,6 +103,9 @@ export const CardSection: React.FC<CardSectionProps> = ({ children, style, divid
         style,
       ]}
     >
+      {title && (
+        <Text style={[styles.sectionTitle, { color: theme === 'dark' ? '#f1f5f9' : '#111827' }]}>{title}</Text>
+      )}
       {children}
     </View>
   );
@@ -150,6 +154,12 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     paddingTop: 16,
     marginTop: 8,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    fontFamily: 'System',
+    marginBottom: 12,
   },
   footer: {
     marginTop: 8,

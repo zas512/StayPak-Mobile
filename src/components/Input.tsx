@@ -12,6 +12,18 @@ interface InputProps extends React.TextInputProps {
   secureTextEntry?: boolean;
   containerStyle?: any;
   inputStyle?: any;
+  style?: any;
+  placeholder?: string;
+  value?: string;
+  onChangeText?: (text: string) => void;
+  editable?: boolean;
+  onPress?: () => void;
+  rightElement?: React.ReactNode;
+  multiline?: boolean;
+  numberOfLines?: number;
+  keyboardType?: 'default' | 'numeric' | 'decimal-pad' | 'email-address' | 'phone-pad';
+  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
+  autoComplete?: string;
 }
 
 export const Input = forwardRef<TextInput, InputProps>(

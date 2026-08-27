@@ -164,6 +164,9 @@ export const listingsApi = {
   getHostListings: (params: Record<string, any>) =>
     api.get<PaginatedResponse<any>>('/listings/host/mine', { params }),
 
+  getMyListings: (params: Record<string, any>) =>
+    api.get<PaginatedResponse<any>>('/listings/host/mine', { params }),
+
   create: (data: FormData) =>
     api.post<ApiResponse<any>>('/listings', data, {
       headers: { 'Content-Type': 'multipart/form-data' },
@@ -270,6 +273,9 @@ export const usersApi = {
 
   verifyCnic: (cnicNumber: string) =>
     api.post<ApiResponse<any>>('/users/verify-cnic', { cnicNumber }),
+
+  getHostStats: () =>
+    api.get<ApiResponse<any>>('/users/host/stats'),
 
   deleteAccount: () =>
     api.delete<ApiResponse<void>>('/users/account'),
