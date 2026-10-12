@@ -1,12 +1,18 @@
-import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, View } from 'react-native';
-import { useTheme } from '@/context/ThemeContext';
+import React from "react";
+import {
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+  View
+} from "react-native";
+import { useTheme } from "@/context/ThemeContext";
 
 interface ButtonProps {
   title: string;
   onPress: () => void;
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
-  size?: 'sm' | 'md' | 'lg';
+  variant?: "primary" | "secondary" | "outline" | "ghost" | "danger";
+  size?: "sm" | "md" | "lg";
   disabled?: boolean;
   loading?: boolean;
   fullWidth?: boolean;
@@ -19,61 +25,61 @@ interface ButtonProps {
 export const Button: React.FC<ButtonProps> = ({
   title,
   onPress,
-  variant = 'primary',
-  size = 'md',
+  variant = "primary",
+  size = "md",
   disabled = false,
   loading = false,
   fullWidth = false,
   leftIcon,
   rightIcon,
   style,
-  testID,
+  testID
 }) => {
   const { theme } = useTheme();
 
   const baseStyles = {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: size === 'sm' ? 6 : size === 'lg' ? 12 : 8,
-    paddingHorizontal: size === 'sm' ? 12 : size === 'lg' ? 24 : 16,
-    paddingVertical: size === 'sm' ? 8 : size === 'lg' ? 16 : 12,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: size === "sm" ? 6 : size === "lg" ? 12 : 8,
+    paddingHorizontal: size === "sm" ? 12 : size === "lg" ? 24 : 16,
+    paddingVertical: size === "sm" ? 8 : size === "lg" ? 16 : 12,
     gap: 8,
-    ...(fullWidth && { width: '100%' }),
+    ...(fullWidth && { width: "100%" })
   };
 
   const variantStyles = {
     primary: {
-      backgroundColor: theme === 'dark' ? '#059669' : '#059669',
+      backgroundColor: theme === "dark" ? "#059669" : "#059669"
     },
     secondary: {
-      backgroundColor: theme === 'dark' ? '#047857' : '#047857',
+      backgroundColor: theme === "dark" ? "#047857" : "#047857"
     },
     outline: {
-      backgroundColor: 'transparent',
+      backgroundColor: "transparent",
       borderWidth: 1.5,
-      borderColor: theme === 'dark' ? '#059669' : '#059669',
+      borderColor: theme === "dark" ? "#059669" : "#059669"
     },
     ghost: {
-      backgroundColor: 'transparent',
+      backgroundColor: "transparent"
     },
     danger: {
-      backgroundColor: theme === 'dark' ? '#ef4444' : '#ef4444',
-    },
+      backgroundColor: theme === "dark" ? "#ef4444" : "#ef4444"
+    }
   };
 
   const textStyles = {
-    primary: { color: '#ffffff' },
-    secondary: { color: '#ffffff' },
-    outline: { color: theme === 'dark' ? '#34d399' : '#059669' },
-    ghost: { color: theme === 'dark' ? '#34d399' : '#059669' },
-    danger: { color: '#ffffff' },
+    primary: { color: "#ffffff" },
+    secondary: { color: "#ffffff" },
+    outline: { color: theme === "dark" ? "#34d399" : "#059669" },
+    ghost: { color: theme === "dark" ? "#34d399" : "#059669" },
+    danger: { color: "#ffffff" }
   };
 
   const fontSizes = {
     sm: 13,
     md: 15,
-    lg: 17,
+    lg: 17
   };
 
   return (
@@ -83,7 +89,7 @@ export const Button: React.FC<ButtonProps> = ({
         baseStyles,
         variantStyles[variant],
         disabled && styles.disabled,
-        style,
+        style
       ]}
       onPress={onPress}
       disabled={disabled || loading}
@@ -93,7 +99,13 @@ export const Button: React.FC<ButtonProps> = ({
       {loading ? (
         <ActivityIndicator
           size="small"
-          color={variant === 'outline' || variant === 'ghost' ? (theme === 'dark' ? '#34d399' : '#059669') : '#ffffff'}
+          color={
+            variant === "outline" || variant === "ghost"
+              ? theme === "dark"
+                ? "#34d399"
+                : "#059669"
+              : "#ffffff"
+          }
         />
       ) : (
         <>
@@ -102,7 +114,7 @@ export const Button: React.FC<ButtonProps> = ({
             style={[
               styles.text,
               textStyles[variant],
-              { fontSize: fontSizes[size] },
+              { fontSize: fontSizes[size] }
             ]}
           >
             {title}
@@ -116,15 +128,15 @@ export const Button: React.FC<ButtonProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center"
   },
   text: {
-    fontWeight: '600',
-    fontFamily: 'System',
+    fontWeight: "600",
+    fontFamily: "System"
   },
   disabled: {
-    opacity: 0.5,
-  },
+    opacity: 0.5
+  }
 });

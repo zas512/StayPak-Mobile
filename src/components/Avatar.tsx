@@ -1,11 +1,11 @@
-import React from 'react';
-import { Image, View, Text, StyleSheet } from 'react-native';
-import { useTheme } from '@/context/ThemeContext';
+import React from "react";
+import { Image, View, Text, StyleSheet } from "react-native";
+import { useTheme } from "@/context/ThemeContext";
 
 interface AvatarProps {
   source?: { uri: string } | number;
   name?: string;
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | number;
+  size?: "xs" | "sm" | "md" | "lg" | "xl" | number;
   style?: any;
   borderWidth?: number;
   borderColor?: string;
@@ -16,25 +16,34 @@ const sizeMap = {
   sm: 32,
   md: 40,
   lg: 48,
-  xl: 64,
+  xl: 64
 };
 
 export const Avatar: React.FC<AvatarProps> = ({
   source,
   name,
-  size = 'md',
+  size = "md",
   style,
   borderWidth = 0,
-  borderColor,
+  borderColor
 }) => {
   const { theme } = useTheme();
-  const dimension = typeof size === 'number' ? size : sizeMap[size];
+  const dimension = typeof size === "number" ? size : sizeMap[size];
   const fontSize = dimension * 0.35;
 
   const bgColors = [
-    '#059669', '#0d9488', '#0891b2', '#0284c7',
-    '#2563eb', '#4f46e5', '#7c3aed', '#9333ea',
-    '#c026d3', '#db2777', '#e11d48', '#f43f5e',
+    "#059669",
+    "#0d9488",
+    "#0891b2",
+    "#0284c7",
+    "#2563eb",
+    "#4f46e5",
+    "#7c3aed",
+    "#9333ea",
+    "#c026d3",
+    "#db2777",
+    "#e11d48",
+    "#f43f5e"
   ];
 
   const getColorFromName = (name: string) => {
@@ -47,15 +56,19 @@ export const Avatar: React.FC<AvatarProps> = ({
 
   const initials = name
     ? name
-        .split(' ')
+        .split(" ")
         .map((n) => n[0])
-        .join('')
+        .join("")
         .toUpperCase()
         .slice(0, 2)
-    : '?';
+    : "?";
 
-  const bgColor = name ? getColorFromName(name) : (theme === 'dark' ? '#374151' : '#d1d5db');
-  const textColor = '#ffffff';
+  const bgColor = name
+    ? getColorFromName(name)
+    : theme === "dark"
+      ? "#374151"
+      : "#d1d5db";
+  const textColor = "#ffffff";
 
   if (source) {
     return (
@@ -64,8 +77,12 @@ export const Avatar: React.FC<AvatarProps> = ({
         style={[
           styles.avatar,
           { width: dimension, height: dimension, borderRadius: dimension / 2 },
-          borderWidth && { borderWidth, borderColor: borderColor || (theme === 'dark' ? '#374151' : '#e5e7eb') },
-          style,
+          borderWidth && {
+            borderWidth,
+            borderColor:
+              borderColor || (theme === "dark" ? "#374151" : "#e5e7eb")
+          },
+          style
         ]}
       />
     );
@@ -81,24 +98,26 @@ export const Avatar: React.FC<AvatarProps> = ({
           borderRadius: dimension / 2,
           backgroundColor: bgColor,
           borderWidth,
-          borderColor: borderColor || 'transparent',
+          borderColor: borderColor || "transparent"
         },
-        style,
+        style
       ]}
     >
-      <Text style={[styles.initials, { fontSize, color: textColor }]}>{initials}</Text>
+      <Text style={[styles.initials, { fontSize, color: textColor }]}>
+        {initials}
+      </Text>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   avatar: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    overflow: 'hidden',
+    justifyContent: "center",
+    alignItems: "center",
+    overflow: "hidden"
   },
   initials: {
-    fontWeight: '600',
-    fontFamily: 'System',
-  },
+    fontWeight: "600",
+    fontFamily: "System"
+  }
 });
